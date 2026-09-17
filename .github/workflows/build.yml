@@ -1,0 +1,45 @@
+name: Build RPMenu
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Download Paper API
+        run: |
+          wget -O paper-api.jar https://repo.papermc.io/repository/maven-public/io/papermc/paper/paper-api/1.21.5-R0.1-SNAPSHOT/paper-api-1.21.5-R0.1-SNAPSHOT.jar
+
+      - name: Compile
+        run: |
+          mkdir -p build/classes
+          javac -encoding UTF-8 \
+            -cp paper-api.jar \
+            -d build/classes \
+            src/main/java/ru/rp/menu/RPMenu.java
+
+      - name: Build JAR
+        run: |
+          mkdir -p build/plugin
+          cp src/main/resources/plugin.yml build/plugin/
+          cp -r build/classes/* build/plugin/
+          cd build/plugin
+          jar cf ../../RPMenu-1.0.2.jar .
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: RPMenu-1.0.2
+          path: RPMenu-1.0.2.jar
