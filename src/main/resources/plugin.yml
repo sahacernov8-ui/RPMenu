@@ -1,1 +1,17 @@
+name: RPMenu
+version: 1.0.2
+main: ru.rp.menu.RPMenu
+api-version: '1.21'
+author: Kehaaa
+description: Custom RP server menu
 
+commands:
+  menu:
+    description: Opens the main server menu
+    usage: /menu
+    permission: rpmenu.use
+
+permissions:
+  rpmenu.use:
+    description: Allows use of /menu
+    default: true
