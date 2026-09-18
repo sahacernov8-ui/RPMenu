@@ -188,15 +188,6 @@ public final class RPMenu extends JavaPlugin implements Listener {
                 )
         );
 
-        // Текущий мир
-        inv.setItem(
-                14,
-                normalItem(
-                        Material.GRASS_BLOCK,
-                        "§aМир",
-                        "§f" + player.getWorld().getName()
-                )
-        );
 
         // Уровень
         inv.setItem(
