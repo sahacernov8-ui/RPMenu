@@ -25,5 +25,5 @@ jobs:
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
-          name: RPMenu-1.0.2
-          path: target/RPMenu-1.0.2.jar
+          name: RPMenu-1.0.3
+          path: target/RPMenu-1.0.3.jar
