@@ -10,64 +10,20 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
-      - name: Setup Java 21
+      - name: Setup Java
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
-        with:
-          gradle-version: '8.10'
-
-      - name: Create Gradle project
+      - name: Build with Maven
         run: |
-          cat > settings.gradle.kts <<'EOF'
-          rootProject.name = "RPMenu"
-          EOF
-
-          cat > build.gradle.kts <<'EOF'
-          plugins {
-              java
-          }
-
-          group = "ru.rp"
-          version = "1.0.2"
-
-          repositories {
-              maven {
-                  name = "papermc"
-                  url = uri("https://repo.papermc.io/repository/maven-public/")
-              }
-          }
-
-          dependencies {
-              compileOnly("io.papermc.paper:paper-api:1.21.5-R0.1-SNAPSHOT")
-          }
-
-          java {
-              toolchain.languageVersion.set(JavaLanguageVersion.of(21))
-          }
-
-          tasks.jar {
-              archiveFileName.set("RPMenu-1.0.2.jar")
-          }
-
-          tasks.processResources {
-              filesMatching("plugin.yml") {
-                  expand("version" to project.version)
-              }
-          }
-          EOF
-
-      - name: Build plugin
-        run: gradle build
+          mvn -B -DskipTests package
 
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
           name: RPMenu-1.0.2
-          path: build/libs/RPMenu-1.0.2.jar
+          path: target/RPMenu-1.0.2.jar
