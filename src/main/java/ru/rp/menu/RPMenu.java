@@ -13,13 +13,17 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public final class RPMenu extends JavaPlugin implements Listener {
 
-    private static final String TITLE = "§8Главное меню";
+    private static final String MAIN_TITLE = "§8Главное меню";
+    private static final String PROFILE_TITLE = "§8Профиль игрока";
 
     @Override
     public void onEnable() {
@@ -48,21 +52,25 @@ public final class RPMenu extends JavaPlugin implements Listener {
             return true;
         }
 
-        openMenu(player);
+        openMainMenu(player);
         return true;
     }
 
-    private void openMenu(Player player) {
+    // =========================
+    // ГЛАВНОЕ МЕНЮ
+    // =========================
+
+    private void openMainMenu(Player player) {
 
         Inventory inv = Bukkit.createInventory(
                 null,
                 27,
-                TITLE
+                MAIN_TITLE
         );
 
         inv.setItem(
                 10,
-                item(
+                menuItem(
                         Material.PLAYER_HEAD,
                         "§bПрофиль",
                         "§7Ваш профиль",
@@ -72,7 +80,7 @@ public final class RPMenu extends JavaPlugin implements Listener {
 
         inv.setItem(
                 12,
-                item(
+                menuItem(
                         Material.IRON_BLOCK,
                         "§6Фракции",
                         "§7Управление фракцией",
@@ -82,7 +90,7 @@ public final class RPMenu extends JavaPlugin implements Listener {
 
         inv.setItem(
                 14,
-                item(
+                menuItem(
                         Material.COMPASS,
                         "§aНавигатор",
                         "§7Навигация",
@@ -92,7 +100,7 @@ public final class RPMenu extends JavaPlugin implements Listener {
 
         inv.setItem(
                 16,
-                item(
+                menuItem(
                         Material.CHEST,
                         "§cМагазин",
                         "§7Магазин сервера",
@@ -102,7 +110,7 @@ public final class RPMenu extends JavaPlugin implements Listener {
 
         inv.setItem(
                 20,
-                item(
+                menuItem(
                         Material.BOOK,
                         "§dПравила",
                         "§7Правила сервера",
@@ -112,7 +120,7 @@ public final class RPMenu extends JavaPlugin implements Listener {
 
         inv.setItem(
                 24,
-                item(
+                menuItem(
                         Material.CRAFTING_TABLE,
                         "§7Настройки",
                         "§7Настройки игрока",
@@ -123,7 +131,131 @@ public final class RPMenu extends JavaPlugin implements Listener {
         player.openInventory(inv);
     }
 
-    private ItemStack item(
+    // =========================
+    // ПРОФИЛЬ
+    // =========================
+
+    private void openProfile(Player player) {
+
+        Inventory inv = Bukkit.createInventory(
+                null,
+                27,
+                PROFILE_TITLE
+        );
+
+        // Голова игрока
+        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
+
+        skullMeta.setOwningPlayer(player);
+        skullMeta.setDisplayName("§b" + player.getName());
+
+        head.setItemMeta(skullMeta);
+
+        inv.setItem(4, head);
+
+        // Основная информация
+        inv.setItem(
+                10,
+                normalItem(
+                        Material.NAME_TAG,
+                        "§eНикнейм",
+                        "§f" + player.getName()
+                )
+        );
+
+        inv.setItem(
+                11,
+                normalItem(
+                        Material.PLAYER_HEAD,
+                        "§bUUID",
+                        "§7" + player.getUniqueId()
+                )
+        );
+
+        // Дата первого входа
+        Date firstPlayed = new Date(player.getFirstPlayed());
+
+        SimpleDateFormat dateFormat =
+                new SimpleDateFormat("dd.MM.yyyy HH:mm");
+
+        inv.setItem(
+                13,
+                normalItem(
+                        Material.CLOCK,
+                        "§6Первый вход",
+                        "§f" + dateFormat.format(firstPlayed)
+                )
+        );
+
+        // Текущий мир
+        inv.setItem(
+                14,
+                normalItem(
+                        Material.GRASS_BLOCK,
+                        "§aМир",
+                        "§f" + player.getWorld().getName()
+                )
+        );
+
+        // Уровень
+        inv.setItem(
+                15,
+                normalItem(
+                        Material.EXPERIENCE_BOTTLE,
+                        "§aУровень",
+                        "§f" + player.getLevel()
+                )
+        );
+
+        // Баланс
+        inv.setItem(
+                16,
+                normalItem(
+                        Material.GOLD_INGOT,
+                        "§6Баланс",
+                        "§f0$"
+                )
+        );
+
+        // Фракция
+        inv.setItem(
+                20,
+                normalItem(
+                        Material.IRON_SWORD,
+                        "§cФракция",
+                        "§7Не состоит во фракции"
+                )
+        );
+
+        // Статус
+        inv.setItem(
+                22,
+                normalItem(
+                        Material.LIME_DYE,
+                        "§aСтатус",
+                        "§fОнлайн"
+                )
+        );
+
+        // Назад
+        inv.setItem(
+                24,
+                normalItem(
+                        Material.ARROW,
+                        "§c← Назад",
+                        "§7Вернуться в главное меню"
+                )
+        );
+
+        player.openInventory(inv);
+    }
+
+    // =========================
+    // ПРЕДМЕТЫ
+    // =========================
+
+    private ItemStack menuItem(
             Material material,
             String name,
             String lore,
@@ -149,10 +281,35 @@ public final class RPMenu extends JavaPlugin implements Listener {
         return stack;
     }
 
+    private ItemStack normalItem(
+            Material material,
+            String name,
+            String lore
+    ) {
+
+        ItemStack stack = new ItemStack(material);
+
+        ItemMeta meta = stack.getItemMeta();
+
+        meta.setDisplayName(name);
+        meta.setLore(List.of(lore));
+
+        stack.setItemMeta(meta);
+
+        return stack;
+    }
+
+    // =========================
+    // ОБРАБОТКА КЛИКОВ
+    // =========================
+
     @EventHandler
     public void onClick(InventoryClickEvent event) {
 
-        if (!event.getView().getTitle().equals(TITLE)) {
+        String title = event.getView().getTitle();
+
+        if (!title.equals(MAIN_TITLE)
+                && !title.equals(PROFILE_TITLE)) {
             return;
         }
 
@@ -162,43 +319,56 @@ public final class RPMenu extends JavaPlugin implements Listener {
             return;
         }
 
-        switch (event.getRawSlot()) {
+        int slot = event.getRawSlot();
 
-            case 10 ->
-                    player.sendMessage(
-                            ChatColor.AQUA +
-                            "Профиль пока находится в разработке."
-                    );
+        // Главное меню
+        if (title.equals(MAIN_TITLE)) {
 
-            case 12 ->
-                    player.sendMessage(
-                            ChatColor.GOLD +
-                            "Фракции пока находятся в разработке."
-                    );
+            switch (slot) {
 
-            case 14 ->
-                    player.sendMessage(
-                            ChatColor.GREEN +
-                            "Навигатор пока находится в разработке."
-                    );
+                case 10 ->
+                        openProfile(player);
 
-            case 16 ->
-                    player.sendMessage(
-                            ChatColor.RED +
-                            "Магазин пока находится в разработке."
-                    );
+                case 12 ->
+                        player.sendMessage(
+                                ChatColor.GOLD +
+                                "Фракции пока находятся в разработке."
+                        );
 
-            case 20 ->
-                    player.sendMessage(
-                            ChatColor.LIGHT_PURPLE +
-                            "Правила пока находятся в разработке."
-                    );
+                case 14 ->
+                        player.sendMessage(
+                                ChatColor.GREEN +
+                                "Навигатор пока находится в разработке."
+                        );
 
-            case 24 ->
-                    player.sendMessage(
-                            ChatColor.GRAY +
-                            "Настройки пока находятся в разработке."
-                    );
+                case 16 ->
+                        player.sendMessage(
+                                ChatColor.RED +
+                                "Магазин пока находится в разработке."
+                        );
+
+                case 20 ->
+                        player.sendMessage(
+                                ChatColor.LIGHT_PURPLE +
+                                "Правила пока находятся в разработке."
+                        );
+
+                case 24 ->
+                        player.sendMessage(
+                                ChatColor.GRAY +
+                                "Настройки пока находятся в разработке."
+                        );
+            }
+
+            return;
+        }
+
+        // Профиль
+        if (title.equals(PROFILE_TITLE)) {
+
+            if (slot == 24) {
+                openMainMenu(player);
+            }
         }
     }
 }
